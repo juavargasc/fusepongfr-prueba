@@ -11,10 +11,31 @@ const AuthContext = createContext();
 export const ContextProvider = ({ children }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [company, setCompany] = useState([]);
+    const [project, setProject] = useState([]);
+    const [userData, setUserData] = useState(null);
 
 	useEffect(() => {
         getCompany();
+        const token = Cookie.get('token')
+        const refreshToken = Cookie.get('refreshToken')
+        const user = Cookie.get('user')
+        if (token) {
+            addBearerToken(token);
+            setIsAuthenticated(true);
+            updateUser(user);
+            redirectAfterLogin();
+        }else{
+            logout();
+        }
     }, [])
+
+    const logout = () => {
+        Cookie.remove('token');
+        Cookie.remove('refreshToken');
+        Cookie.remove('user');
+        setIsAuthenticated(false);
+        redirectAfterLogout();
+    }
 
     const getCompany = async () => {
         await api.get(routes.companyList)
@@ -26,12 +47,35 @@ export const ContextProvider = ({ children }) => {
         })
     }
 
+    const updateUser = async (user) => {
+        await api.get(routes.me+user)
+        .then(async ({ data }) => {
+            setUserData(data);
+            await api.get(routes.project+data.company)
+            .then(async ({ data }) => {
+                console.log(data.docs)
+                setProject(data.docs)
+            })
+            .catch((error) => {
+                console.error(error);
+                logout();
+            })
+        })
+        .catch((error) => {
+            console.error(error);
+            logout();
+        })   
+    }
+
     const setToken = async (token, refreshToken, user) => {
-        Cookie.set('token', token)
+        const in15minutes = 1/96;
+        Cookie.set('token', token, { expires: in15minutes })
         Cookie.set('refreshToken', refreshToken)
         Cookie.set('user', user)
         addBearerToken(token);
+        getCompany();
         setIsAuthenticated(true);
+        updateUser(user);
         redirectAfterLogin();
     }
 
@@ -39,8 +83,12 @@ export const ContextProvider = ({ children }) => {
         Router.push('/dashboard')
     }
 
+    const redirectAfterLogout = () => {
+        Router.push('/')
+    }
+
 	return (
-        <AuthContext.Provider value={{ isAuthenticated, company, setToken }}>
+        <AuthContext.Provider value={{ isAuthenticated, company, setToken, logout, userData, project }}>
             {children}
         </AuthContext.Provider>
     )

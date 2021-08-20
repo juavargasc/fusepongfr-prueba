@@ -8,10 +8,12 @@ export const routes = {
     project: 'project/item/',
     userStorie: 'user-storie/item/',
     ticket: 'ticket/item/',
+    comment: 'comment/item/',
     createStorie: 'user-storie/create',
     updateStorie: 'user-storie/update',
     createTicket: 'ticket/create',
-    updateTicket: 'ticket/update'
+    updateTicket: 'ticket/update',
+    createComment: 'comment/create'
 }
 
 export const fetcherfunc = async (url) => {

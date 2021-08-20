@@ -10,7 +10,9 @@ export default function Dashboard() {
   const [stories, setStories] = useState([]);
   const [projectItem, setProjectItem] = useState(null);
   const [storieItem, setStorieItem] = useState(null);
+  const [ticketItem, setTicketItem] = useState(null);
   const [tickets, setTickets] = useState([]);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
 	
   const getUserStories = async (e) => {
@@ -48,6 +50,24 @@ export default function Dashboard() {
     .catch((error) => {
         alert('Error en la consulta')
         setTickets([])
+    })
+  }
+
+  const prepareComments = (e, ticket) => {
+    setComments([])
+    setTicketItem(ticket)
+    consultaComments(ticket)
+  }
+
+  const consultaComments = async (ticket) => {
+    await api.get(routes.comment+ticket)
+    .then(async ({ data }) => {
+      console.log('comments',data.docs)
+      setComments(data.docs)
+    })
+    .catch((error) => {
+      alert('Error en la consulta')
+      setComments([])
     })
   }
 
@@ -125,6 +145,24 @@ export default function Dashboard() {
     });
   }
 
+  const handleFormSubmitC = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const description = e.target.elements['description'].value;
+    const ticket = ticketItem;
+    const user = userData._id;
+    api.post(routes.createComment, { ticket, description, user })
+    .then(({data}) => {
+      setLoading(false);
+      e.target.reset();
+      consultaComments(ticketItem)
+    })
+    .catch((error) => {
+      setLoading(false);
+      alert('Error en la creación')
+    });
+  }
+
 	return (
     <div className="container mt-4 pb-5">
     	<Head>
@@ -191,7 +229,7 @@ export default function Dashboard() {
                                   <td>{tick.description}</td>
                                   <td>{tick.status}</td>
                                   <td>
-                                    <span style={{'cursor':'pointer'}} className="badge badge-secondary" data-toggle="modal" data-target={`#editarTicket${tick._id}`}>Editar</span> / ver comentarios
+                                    <span style={{'cursor':'pointer'}} className="badge badge-secondary" data-toggle="modal" data-target={`#editarTicket${tick._id}`}>Editar</span> / <span style={{'cursor':'pointer'}} className="badge badge-secondary" data-toggle="modal" onClick={(e) => prepareComments(e,tick._id)} data-target={`#verComentarios`}>Ver comentarios</span>
                                     <div className="modal fade" id={`editarTicket${tick._id}`} tabIndex="-1" aria-labelledby={`editarTicket${tick._id}Label`} aria-hidden="true">
                                       <div className="modal-dialog">
                                         <div className="modal-content">
@@ -334,6 +372,57 @@ export default function Dashboard() {
                   <button type="submit" className="btn btn-primary">Guardar</button>
                 </fieldset>  
               </form><br/>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="verComentarios" tabIndex="-1" aria-labelledby="verComentariosLabel" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">Comentarios</h5>
+              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleFormSubmitC}>
+                <fieldset disabled={loading}>
+                  <div className="form-group">
+                    <label htmlFor="name">Comentario</label>
+                    <input type="text" className="form-control" id="description" required/>
+                  </div>
+                  <button type="submit" className="btn btn-primary">Guardar</button>
+                </fieldset>  
+              </form><br/>
+              {
+                (comments && comments.length !== 0) ? <h5>Comentarios:</h5> : <h5>Sin comentarios.</h5>
+              }
+              <div className={ comments && comments.length !==0 ? `table-responsive` : 'd-none'}>
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Comentario</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      comments && comments.length !==0 && comments.map( (comm) => {
+                        return (
+                          <tr key={comm._id}>
+                            <td>{comm.user.first} {comm.user.last}</td>
+                            <td>{comm.description}</td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-dismiss="modal">Cancelar</button>

@@ -81,6 +81,7 @@ export default function Dashboard() {
     .then(({data}) => {
       setLoading(false);
       consultaStorie(projectItem)
+      e.target.reset();
       $('#nuevaHistoria').modal('toggle')
     })
     .catch((error) => {
@@ -118,6 +119,7 @@ export default function Dashboard() {
     .then(({data}) => {
       setLoading(false);
       consultaTickets(storieItem)
+      e.target.reset();
       $('#nuevoTicket').modal('toggle')
     })
     .catch((error) => {

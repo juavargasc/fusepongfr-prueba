@@ -1,0 +1,12 @@
+.footer {
+	background-color: rgb(20, 53, 110);
+}
+.positions {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+.footer_text {
+	flex-direction: column;
+	justify-content: center;
+}

@@ -68,8 +68,8 @@ export const ContextProvider = ({ children }) => {
     }
 
     const setToken = async (token, refreshToken, user) => {
-        const in15minutes = 1/96;
-        Cookie.set('token', token, { expires: in15minutes })
+        const in4horas = 1/6;
+        Cookie.set('token', token, { expires: in4horas })
         Cookie.set('refreshToken', refreshToken)
         Cookie.set('user', user)
         addBearerToken(token);

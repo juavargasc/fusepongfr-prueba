@@ -5,7 +5,13 @@ export const routes = {
     login: 'auth/login',
     companyList: 'company/page/1',
     me: 'user/',
-    project: 'project/item/'
+    project: 'project/item/',
+    userStorie: 'user-storie/item/',
+    ticket: 'ticket/item/',
+    createStorie: 'user-storie/create',
+    updateStorie: 'user-storie/update',
+    createTicket: 'ticket/create',
+    updateTicket: 'ticket/update'
 }
 
 export const fetcherfunc = async (url) => {

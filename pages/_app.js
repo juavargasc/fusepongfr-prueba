@@ -17,8 +17,8 @@ function MyApp({ Component, pageProps }) {
             <MainLayout>
         		<Component {...pageProps}/>
       		</MainLayout>
-      		<script async src="/jquery-3.5.1.slim.min.js" ></script>
-      		<script async src="/bootstrap.min.js" ></script>
+      		<script defer src="/jquery-3.5.1.slim.min.js" ></script>
+      		<script defer src="/bootstrap.min.js" ></script>
         </ContextProvider>
     )
 }
